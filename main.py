@@ -1,28 +1,28 @@
-"""
-Extract data if not available
-"""
 import gzip, shutil, json
-import pandas as pd
 
-try:
-    open('data.jsonl')
-except OSError:
-    print("DATA NOT FOUND: Extracting...")
-    with gzip.open('data.jsonl.gz', 'rb') as f_in:
-        with open('data.jsonl', 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-# finally:
-#     with open('data.jsonl') as file:
-#         data = pd.read_json("data.jsonl", lines=True, nrows=10_000, )
-#         print(data)
+def extract_data(zip:str, file:str):
+    """
+    Extract data if not available
+    """
+    try:
+        open(file)
+    except OSError:
+        print("DATA NOT FOUND: Extracting...")
+        with gzip.open(zip, 'rb') as f_in:
+            with open(file, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
 
-def get_data(row, nrows):
+def get_data(page:int, rows:int) -> list[dict]:
+    """
+    Grabs paginated data from extracted JSONL file
+    """
     data = []
     with open('data.jsonl') as file:
-        for _ in range(row):
+        for _ in range(page * rows):
             file.readline()
-        for _ in range(nrows):
+        for _ in range(rows):
             data.append(json.loads(file.readline()))
     print(data[:5])
 
+extract_data('data.jsonl.gz', 'data.jsonl')
 get_data(0, 50_000)
