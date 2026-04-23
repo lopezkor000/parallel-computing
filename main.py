@@ -46,10 +46,7 @@ def map_citations(data:list[dict]):
             print(id, item['title'])
             continue
 
-        if id not in citation_map:
-            citation_map[id] = set()
-        for cite in item['scholarly_citations']:
-            citation_map[id].add(cite)
+        citation_map[id] = set(item['scholarly_citations'])
         
         for word in item['keywords']:
             if word not in keyword_map:
