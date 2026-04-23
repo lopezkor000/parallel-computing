@@ -1,4 +1,4 @@
-import gzip, shutil, json
+import gzip, shutil, json, os
 
 def extract_data(zip:str, file:str):
     """
@@ -35,10 +35,10 @@ def map_citations(data:list[dict]):
     """
     Creates map of data based on citations
     """
-    citation_map:dict[str,set] = dict()
-    keyword_map:dict[str,set] = dict()
+    citation_map:dict[str,list] = dict()
+    keyword_map:dict[str,list] = dict()
 
-    for item in data[:1]:
+    for item in data:
         id = item['lens_id']
 
         # Ignores datapoints with no citations or keywords
@@ -46,18 +46,26 @@ def map_citations(data:list[dict]):
             print(id, item['title'])
             continue
 
-        citation_map[id] = set(item['scholarly_citations'])
+        citation_map[id] = item['scholarly_citations']
         
         for word in item['keywords']:
+            word = word.strip()
             if word not in keyword_map:
-                keyword_map[word] = set()
-            keyword_map[word].add(id)
+                keyword_map[word] = list()
+            keyword_map[word].append(id)
 
     return citation_map, keyword_map
+
+def export_mappings(citations, keywords):
+    os.makedirs('output', exist_ok=True)
+    with open('output/citation_map.json', 'w') as file:
+        json.dump(citations, file, indent=2)
+    with open('output/keyword_map.json', 'w') as file:
+        json.dump(keywords, file, indent=2)
 
 if __name__ == "__main__":
     extract_data('data.jsonl.gz', 'data.jsonl')
     data = get_data(0, 1_000)
-    # output_sample(data)
+    output_sample(data)
     cite, keys = map_citations(data)
-    print(list(keys.keys())[0], cite[list(list(keys.values())[0])[0]])
+    export_mappings(cite, keys)
