@@ -42,11 +42,12 @@ def map_citations(data:list[dict]):
         id = item['lens_id']
 
         # Ignores datapoints with no citations or keywords
-        if 'scholarly_citations' not in item or 'keywords' not in item:
+        if 'keywords' not in item:
             print(id, item['title'])
             continue
 
-        citation_map[id] = item['scholarly_citations']
+        if 'scholarly_citations' in item:
+            citation_map[id] = item['scholarly_citations']
         
         for word in item['keywords']:
             word = word.strip()
